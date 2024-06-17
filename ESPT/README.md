@@ -19,11 +19,11 @@ Libsvm is in the ESPT file.
 
 Enter "ESPT" in the command to enter the start screen of the software, as shown in the figure below. 
 
-<img src="O:\hyw\SC\ESPT\figure\1.png" alt="1" style="zoom:50%;" />
+![Alt Text](figure/1.png)
 
 ## Preoperative ISCN Construction
 
-<img src="O:\hyw\SC\ESPT\figure\2.png" alt="2" style="zoom:50%;" />
+![Alt Text](figure/2.png)
 
 ### T1Img path
 
@@ -55,7 +55,7 @@ After completing the above steps, click the "Run" button on the right to start t
 
 ## Postoperative Outcome Prediction
 
-<img src="O:\hyw\SC\ESPT\figure\3.png" alt="3" style="zoom:50%;" />
+![Alt Text](figure/3.png)
 
 ### Patient path
 
@@ -73,7 +73,7 @@ After the above steps are completed, click the "Run" button on the right to star
 
 ## Customized Prediction Model
 
-<img src="O:\hyw\SC\ESPT\figure\4.png" alt="4" style="zoom:50%;" />
+![Alt Text](figure/4.png)
 
 ### Patient path
 
