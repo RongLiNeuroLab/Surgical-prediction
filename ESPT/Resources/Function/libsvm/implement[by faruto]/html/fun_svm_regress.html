@@ -1,0 +1,257 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>fun_svm_regress</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2010-07-29"><meta name="m-file" content="fun_svm_regress"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#5">&#24402;&#19968;&#21270;&#22788;&#29702;</a></li><li><a href="#6">&#21442;&#25968;&#23547;&#20248;</a></li><li><a href="#7">&#35757;&#32451;&#24182;&#23545;&#35757;&#32451;&#38598;&#22238;&#24402;&#39044;&#27979;</a></li><li><a href="#8">&#23545;&#27979;&#35797;&#38598;&#22238;&#24402;&#39044;&#27979;</a></li><li><a href="#9">&#21487;&#35270;&#21270;</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [ptest,test_mse,ptrain,train_mse,model,bestmse,bestc,bestg]=fun_svm_regress(train_x,train_y,test_x,test_y,method)
+</pre><pre class="codeinput"><span class="comment">%fun_svm_regress</span>
+</pre><pre class="codeinput"><span class="comment">%email: neau_yzh@163.com</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+</pre><pre class="codeinput"><span class="keyword">if</span> nargin&lt;5
+    method=<span class="string">'grid'</span>;
+<span class="keyword">end</span>
+<span class="keyword">if</span> nargin &lt;3
+    test_x=train_x;
+    test_y=train_y;
+<span class="keyword">end</span>
+<span class="keyword">if</span> nargin&lt;2
+    train_y=train_x;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Input argument "train_x" is undefined.
+
+Error in ==&gt; fun_svm_regress at 16
+    test_x=train_x;
+</pre><h2>&#24402;&#19968;&#21270;&#22788;&#29702;<a name="5"></a></h2><pre class="codeinput">  [train_x_scale,test_x_scale] = scaleForSVM(train_x,test_x,0,1);
+  [train_y_scale,test_y_scale,ps] = scaleForSVM(train_y,test_y,0,1);
+ <span class="comment">% train_y_scale=train_y;</span>
+<span class="comment">%   test_y_scale=test_y;</span>
+</pre><h2>&#21442;&#25968;&#23547;&#20248;<a name="6"></a></h2><pre class="codeinput"><span class="keyword">switch</span> lower(method)
+    <span class="keyword">case</span> <span class="string">'grid'</span>
+        [bestmse,bestc,bestg] = SVMcgForRegress(train_y_scale,train_x_scale);
+    <span class="keyword">case</span> <span class="string">'ga'</span>
+        ga_option.maxgen = 100;
+        ga_option.sizepop = 20;
+        ga_option.ggap = 0.9;
+        ga_option.cbound = [0,100];
+        ga_option.gbound = [0,100];
+        ga_option.v = 5;
+        [bestmse,bestc,bestg] =<span class="keyword">...</span>
+            gaSVMcgForRegress(train_y_scale,train_x_scale,ga_option);
+    <span class="keyword">case</span> <span class="string">'pso'</span>
+        pso_option.c1 = 1.5;
+        pso_option.c2 = 1.7;
+        pso_option.maxgen = 100;
+        pso_option.sizepop = 20;
+        pso_option.k = 0.6;
+        pso_option.wV = 1;
+        pso_option.wP = 1;
+        pso_option.v = 3;
+        pso_option.popcmax = 100;
+        pso_option.popcmin = 0.1;
+        pso_option.popgmax = 100;
+        pso_option.popgmin = 0.1;
+        [bestmse,bestc,bestg] =<span class="keyword">...</span>
+              psoSVMcgForRegress(train_y_scale,train_x_scale,pso_option);
+<span class="keyword">end</span>
+cmd = [<span class="string">'-c '</span>,num2str(bestc),<span class="string">' -g '</span>,num2str(bestg),<span class="string">' -s 3 -p 0.01'</span>];
+</pre><h2>&#35757;&#32451;&#24182;&#23545;&#35757;&#32451;&#38598;&#22238;&#24402;&#39044;&#27979;<a name="7"></a></h2><pre class="codeinput">model=svmtrain(train_y_scale,train_x_scale,cmd);
+
+[ptrain, train_mse] = svmpredict(train_y_scale, train_x_scale, model);
+
+ptrain=mapminmax(<span class="string">'reverse'</span>,ptrain',ps);
+
+ptrain=ptrain';
+</pre><h2>&#23545;&#27979;&#35797;&#38598;&#22238;&#24402;&#39044;&#27979;<a name="8"></a></h2><pre class="codeinput">[ptest,test_mse]=svnpredict(test_y_scale,test_x_scale,model);
+
+ptest=mapminmax(<span class="string">'reverse'</span>,ptest',ps);
+
+ptest=ptest';
+</pre><h2>&#21487;&#35270;&#21270;<a name="9"></a></h2><pre class="codeinput">figure;
+subplot(2,1,1);
+plot(train_y,<span class="string">'-o'</span>);
+hold <span class="string">on</span>;
+plot(ptrain,<span class="string">'r-s'</span>);
+grid <span class="string">on</span>;
+legend(<span class="string">'original'</span>,<span class="string">'predict'</span>);
+title(<span class="string">'Train Set Regression Predict by SVM'</span>);
+hold <span class="string">off</span>
+
+subplot(2,1,2);
+plot(test_y,<span class="string">'-d'</span>);
+hold <span class="string">on</span>
+plot(ptest,<span class="string">'r-*'</span>);
+legend(<span class="string">'original'</span>,<span class="string">'predict'</span>);
+title(<span class="string">'Test Set Regression Predict by SVM'</span>);
+grid <span class="string">on</span>;
+hold <span class="string">off</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+function [ptest,test_mse,ptrain,train_mse,model,bestmse,bestc,bestg]=fun_svm_regress(train_x,train_y,test_x,test_y,method)
+%fun_svm_regress
+%% 
+%email: neau_yzh@163.com
+%
+%
+%
+%
+%
+%
+ %%
+if nargin<5
+    method='grid';
+end
+if nargin <3
+    test_x=train_x;
+    test_y=train_y;
+end
+if nargin<2
+    train_y=train_x;
+end
+%% 归一化处理
+  [train_x_scale,test_x_scale] = scaleForSVM(train_x,test_x,0,1);
+  [train_y_scale,test_y_scale,ps] = scaleForSVM(train_y,test_y,0,1);
+ % train_y_scale=train_y;
+%   test_y_scale=test_y;
+
+%% 参数寻优
+switch lower(method)
+    case 'grid'
+        [bestmse,bestc,bestg] = SVMcgForRegress(train_y_scale,train_x_scale);
+    case 'ga'
+        ga_option.maxgen = 100;
+        ga_option.sizepop = 20;
+        ga_option.ggap = 0.9;
+        ga_option.cbound = [0,100];
+        ga_option.gbound = [0,100];
+        ga_option.v = 5;
+        [bestmse,bestc,bestg] =...
+            gaSVMcgForRegress(train_y_scale,train_x_scale,ga_option);
+    case 'pso'
+        pso_option.c1 = 1.5;
+        pso_option.c2 = 1.7;
+        pso_option.maxgen = 100;
+        pso_option.sizepop = 20;
+        pso_option.k = 0.6;
+        pso_option.wV = 1;
+        pso_option.wP = 1;
+        pso_option.v = 3;
+        pso_option.popcmax = 100;
+        pso_option.popcmin = 0.1;
+        pso_option.popgmax = 100;
+        pso_option.popgmin = 0.1;
+        [bestmse,bestc,bestg] =...
+              psoSVMcgForRegress(train_y_scale,train_x_scale,pso_option);
+end
+cmd = ['-c ',num2str(bestc),' -g ',num2str(bestg),' -s 3 -p 0.01'];
+%% 训练并对训练集回归预测
+model=svmtrain(train_y_scale,train_x_scale,cmd);
+
+[ptrain, train_mse] = svmpredict(train_y_scale, train_x_scale, model);
+
+ptrain=mapminmax('reverse',ptrain',ps);
+
+ptrain=ptrain';
+
+%% 对测试集回归预测
+[ptest,test_mse]=svnpredict(test_y_scale,test_x_scale,model);
+
+ptest=mapminmax('reverse',ptest',ps);
+
+ptest=ptest';
+%% 可视化
+figure;
+subplot(2,1,1);
+plot(train_y,'-o');
+hold on;
+plot(ptrain,'r-s');
+grid on;
+legend('original','predict');
+title('Train Set Regression Predict by SVM');
+hold off
+
+subplot(2,1,2);
+plot(test_y,'-d');
+hold on
+plot(ptest,'r-*');
+legend('original','predict');
+title('Test Set Regression Predict by SVM');
+grid on;
+hold off
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
